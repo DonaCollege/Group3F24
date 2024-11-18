@@ -31,7 +31,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       name: _nameController.text,
       email: _emailController.text,
       phone: _phoneController.text,
-      profilePictureUrl: _userProfile.profilePictureUrl, // Keep the same picture
+      profilePictureUrl:
+          _userProfile.profilePictureUrl, // Keep the same picture
       address: _addressController.text, // Save the address
     );
 
