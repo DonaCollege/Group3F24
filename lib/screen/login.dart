@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/user_profile.dart';
 import '../services/profile_services.dart';
 import 'profile_screen.dart';
+import '../screen/register.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -42,13 +43,33 @@ class LoginPage extends StatelessWidget {
                 const SizedBox(height: 10),
                 GestureDetector(
                   onTap: () {
-                    // Handle create account tap
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => RegisterPage()),
+                    );
                   },
-                  child: const Text(
-                    "Don't have an account? Create One",
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14,
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "Don't have an account? ",
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                          ),
+                        ),
+                        TextSpan(
+                          text: "Create One",
+                          style: TextStyle(
+                            color: Colors.grey,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.blue,
+                            decorationThickness: 2.0,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold, // Make this part bold
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -85,6 +106,21 @@ class LoginPage extends StatelessWidget {
                     ),
                   ),
                 ),
+                const SizedBox(height: 10),
+                // Forgot Password Text
+                GestureDetector(
+                  onTap: () {
+                    // Handle forgot password tap
+                  },
+                  child: const Text(
+                    'Forgot Password?',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -95,42 +131,78 @@ class LoginPage extends StatelessWidget {
                     ),
                   ),
                   onPressed: () async {
-                    // Simulated Login
-                    String username = usernameController.text;
-                    String password = passwordController.text;
+                    String username = usernameController.text.trim();
+                    String password = passwordController.text.trim();
 
-                    if (username.isNotEmpty && password.isNotEmpty) {
-                      // Fetch user profile using ProfileService
+                    if (username.isEmpty || password.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please enter username and password.'),
+                        ),
+                      );
+                    } else {
                       UserProfile? userProfile =
                           ProfileService().getUserProfile();
 
                       if (userProfile != null) {
-                        // Navigate to ProfileScreen with user data
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                               builder: (context) => ProfileScreen()),
                         );
                       } else {
-                        // Show error (user not found)
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Invalid credentials. Try again.'),
                           ),
                         );
                       }
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Please enter username and password.'),
-                        ),
-                      );
                     }
                   },
                   child: const Text(
                     'Next',
                     style: TextStyle(fontSize: 18),
                   ),
+                ),
+                const SizedBox(height: 20),
+                // Google Sign-In Button
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  icon: Image.asset('lib/assets/google_icon.png', width: 24),
+                  label: const Text(
+                    'Sign in with Google',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  onPressed: () {
+                    // Handle Google Sign-In
+                  },
+                ),
+                const SizedBox(height: 10),
+                // Facebook Sign-In Button
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  icon: Image.asset('lib/assets/facebook_icon.png', width: 24),
+                  label: const Text(
+                    'Sign in with Facebook',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  onPressed: () {
+                    // Handle Facebook Sign-In
+                  },
                 ),
               ],
             ),
