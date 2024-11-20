@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trackwise/screen/trip_summary.dart';
 import 'screen/login.dart'; // Import LoginPage here
 import 'screen/profile_screen.dart'; // Import ProfileScreen if necessary
 
@@ -30,7 +31,7 @@ class MyApp extends StatelessWidget {
           bodySmall: TextStyle(color: Colors.white),
         ),
       ),
-      home: LoginPage(), // Change home to LoginPage instead of ProfileScreen
+      home: LoginPage(),
     );
   }
 }
