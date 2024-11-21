@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:trackwise/screen/trip_summary.dart';
 import 'screen/login.dart'; // Import LoginPage here
-import 'screen/profile_screen.dart'; // Import ProfileScreen if necessary
+// Import ProfileScreen if necessary
 
 void main() {
   runApp(MyApp());
