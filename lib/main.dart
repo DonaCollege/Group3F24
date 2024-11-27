@@ -1,8 +1,23 @@
 import 'package:flutter/material.dart';
-import 'screen/login.dart'; // Import LoginPage here
-// Import ProfileScreen if necessary
+import 'package:firebase_core/firebase_core.dart';
+import 'screen/login.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase with the options from firebase_options.dart
+  try {
+    await Firebase.initializeApp(
+      options:
+          DefaultFirebaseOptions.currentPlatform, // Use the generated options
+    );
+    print("Firebase initialized successfully.");
+  } catch (e) {
+    print("Error initializing Firebase: $e");
+    return; // Stop execution if Firebase initialization fails
+  }
+
   runApp(MyApp());
 }
 
@@ -30,7 +45,7 @@ class MyApp extends StatelessWidget {
           bodySmall: TextStyle(color: Colors.white),
         ),
       ),
-      home: LoginPage(),
+      home: LoginScreen(),
     );
   }
 }
