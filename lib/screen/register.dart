@@ -1,164 +1,181 @@
 import 'package:flutter/material.dart';
-import '../models/user_profile.dart';
 import '../services/auth_service.dart';
+import 'login.dart';
+import '../models/user_profile.dart';
 
-class RegisterPage extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({Key? key}) : super(key: key);
+
+  @override
+  _RegisterScreenState createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final AuthService _authService = AuthService();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
 
-  void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+  void _register() async {
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Passwords do not match")),
+      );
+      return;
+    }
+
+    final userProfile = UserProfile(
+      name: _usernameController.text,
+      email: _emailController.text,
+      phone: '', // Add input for phone if required
+      address: '', // Add input for address if required
+      profilePictureUrl: '', // Add URL input if needed
     );
+
+    try {
+      await _authService.registerUser(
+        _emailController.text,
+        _passwordController.text,
+        userProfile,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Account created successfully!")),
+      );
+      // Navigate to login or other page if necessary
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF2A3A4A),
+      backgroundColor: const Color(0xFF2D3E50),
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  'Track-Wise',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Track-Wise',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Create Account',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              _buildTextField(_emailController, 'Enter your Email'),
+              const SizedBox(height: 12),
+              _buildTextField(_usernameController, 'Enter the Username'),
+              const SizedBox(height: 12),
+              _buildTextField(_passwordController, 'Enter the Password',
+                  obscureText: true),
+              const SizedBox(height: 12),
+              _buildTextField(_confirmPasswordController, 'Re-enter Password',
+                  obscureText: true),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _register,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
                   ),
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  'Create Account',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: const Text(
+                  'Create',
+                  style: TextStyle(color: Colors.black, fontSize: 16),
                 ),
-                const SizedBox(height: 30),
-                _buildInputField(_emailController, 'Enter your Email'),
-                const SizedBox(height: 15),
-                _buildInputField(_nameController, 'Enter the Username'),
-                const SizedBox(height: 15),
-                _buildInputField(_passwordController, 'Enter the Password',
-                    obscureText: true),
-                const SizedBox(height: 15),
-                _buildInputField(
-                    _confirmPasswordController, 'Re-enter Password',
-                    obscureText: true),
-                const SizedBox(height: 25),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[300],
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 60, vertical: 15),
-                  ),
-                  onPressed: () {
-                    // Validate input
-                    if (_emailController.text.isEmpty) {
-                      _showSnackBar(context, 'Email is required');
-                      return;
-                    }
-                    if (_nameController.text.isEmpty) {
-                      _showSnackBar(context, 'Username is required');
-                      return;
-                    }
-                    if (_passwordController.text.isEmpty) {
-                      _showSnackBar(context, 'Password is required');
-                      return;
-                    }
-                    if (_confirmPasswordController.text.isEmpty) {
-                      _showSnackBar(context, 'Please confirm your password');
-                      return;
-                    }
-                    if (_passwordController.text !=
-                        _confirmPasswordController.text) {
-                      _showSnackBar(context, 'Passwords do not match');
-                      return;
-                    }
-
-                    // Create user if all fields are valid
-                    final user = UserProfile(
-                      name: _nameController.text,
-                      email: _emailController.text,
-                      phone: '', // Placeholder, adjust if needed
-                      address: '', // Placeholder, adjust if needed
-                      profilePictureUrl: '',
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Or',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  final user = await _authService.signUpWithGoogle();
+                  if (user != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text("Google Sign-Up successful!")),
                     );
-                    _authService.registerUser(user);
-                    Navigator.pop(context);
-                  },
-                  child: const Text(
-                    'Create',
-                    style: TextStyle(color: Colors.black),
+                    // Navigate to login or other page
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Google Sign-Up failed")),
+                    );
+                  }
+                },
+                icon: Image.asset(
+                  "lib/assets/google_icon.png",
+                  height: 24,
+                  width: 24,
+                ),
+                label: const Text('Sign up with Google'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
                   ),
                 ),
-                const SizedBox(height: 20),
-                const Text(
-                  'Or',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+              const SizedBox(height: 12),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                  );
+                },
+                child: const Text(
+                  'Already have an account? Login',
+                  style: TextStyle(color: Colors.white),
                 ),
-                const SizedBox(height: 20),
-                _buildSocialButton('Sign up with Google', Colors.white,
-                    'lib/assets/google_icon.png'),
-                const SizedBox(height: 10),
-                _buildSocialButton('Sign up with Facebook', Colors.white,
-                    'lib/assets/facebook_icon.png'),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildInputField(TextEditingController controller, String hintText,
+  Widget _buildTextField(TextEditingController controller, String hintText,
       {bool obscureText = false}) {
     return TextField(
       controller: controller,
       obscureText: obscureText,
+      style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(color: Colors.grey),
+        hintStyle: TextStyle(color: Colors.white),
         filled: true,
-        fillColor: Colors.grey[600],
+        fillColor: Colors.grey,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(20),
           borderSide: BorderSide.none,
         ),
-      ),
-      style: const TextStyle(color: Colors.white),
-    );
-  }
-
-  Widget _buildSocialButton(String text, Color color, String iconPath) {
-    return ElevatedButton.icon(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-      onPressed: () {},
-      icon: Image.asset(
-        iconPath,
-        width: 24,
-        height: 24,
-      ),
-      label: Text(
-        text,
-        style: const TextStyle(color: Colors.black),
       ),
     );
   }

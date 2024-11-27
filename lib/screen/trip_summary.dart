@@ -18,6 +18,18 @@ class TripSummary extends StatelessWidget {
     fontWeight: FontWeight.bold,
   );
 
+  final int distanceTravel = Random().nextInt(100000 - 100 + 1) + 100;
+  final int averageSpeed = Random().nextInt(150 - 60 + 1) + 60;
+  final int topSpeed = Random().nextInt(200 - 100 + 1) + 100;
+  final int hoursInTrafficHours = Random().nextInt(24 - 2 + 1) + 2;
+  final int hoursInTrafficMinutes = Random().nextInt(60 - 2 + 1) + 2;
+  final int idleTimeHours = Random().nextInt(24 - 2 + 1) + 2;
+  final int idleTimeMinutes = Random().nextInt(60 - 2 + 1) + 2;
+  final int overSpeedingIncident = Random().nextInt(10 - 2 + 1) + 2;
+  final int sharpTurn = Random().nextInt(10 - 2 + 1) + 2;
+  final int rapidAcceleration = Random().nextInt(10 - 2 + 1) + 2;
+  final int harshBreaking = Random().nextInt(10 - 2 + 1) + 2;
+
   int getRandomValue(int min, int max) => Random().nextInt(max - min + 1) + min;
 
   Widget buildRow(String title, String value, {bool isLargeHeader = false}) {
@@ -70,21 +82,25 @@ class TripSummary extends StatelessWidget {
                 style: valueStyle.copyWith(fontSize: 16),
               ),
             ),
-            buildRow('Distance Travel', '${getRandomValue(100, 100000)} km'),
-            buildRow('Average Speed', '${getRandomValue(60, 150)} km/h'),
-            buildRow('Top Speed', '${getRandomValue(100, 200)} km/h'),
-            buildRow('Hours in Traffic',
-                '${getRandomValue(2, 24)} hours ${getRandomValue(2, 60)} minutes'),
-            buildRow('Idle Time',
-                '${getRandomValue(2, 24)} hours ${getRandomValue(2, 60)} minutes'),
+            buildRow('Distance Travel', '$distanceTravel km'),
+            buildRow('Average Speed', '$averageSpeed km/h'),
+            buildRow('Top Speed', '$topSpeed km/h'),
+            buildRow(
+              'Hours in Traffic',
+              '$hoursInTrafficHours hours $hoursInTrafficMinutes minutes',
+            ),
+            buildRow(
+              'Idle Time',
+              '$idleTimeHours hours $idleTimeMinutes minutes',
+            ),
             Padding(
               padding: const EdgeInsets.only(left: 16.0, top: 20.0),
               child: Text('Trip Safety Matrix', style: headerStyle),
             ),
-            buildRow('Over Speeding Incident', '${getRandomValue(2, 10)}'),
-            buildRow('Sharp Turn', '${getRandomValue(2, 10)}'),
-            buildRow('Rapid Acceleration', '${getRandomValue(2, 10)}'),
-            buildRow('Harsh Breaking', '${getRandomValue(2, 10)}')
+            buildRow('Over Speeding Incident', '$overSpeedingIncident'),
+            buildRow('Sharp Turn', '$sharpTurn'),
+            buildRow('Rapid Acceleration', '$rapidAcceleration'),
+            buildRow('Harsh Breaking', '$harshBreaking'),
           ],
         ),
       ),
