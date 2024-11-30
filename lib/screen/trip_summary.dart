@@ -1,50 +1,92 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../services/auth_service.dart';
 
-class TripSummary extends StatelessWidget {
-  final Color backgroundColor = const Color(0xFF2A3A4A);
-  final TextStyle titleStyle = const TextStyle(
-    color: Colors.white,
-    fontSize: 24,
-    fontWeight: FontWeight.bold,
-  );
-  final TextStyle valueStyle = const TextStyle(
-    color: Colors.white,
-    fontSize: 20,
-  );
-  final TextStyle headerStyle = const TextStyle(
-    color: Colors.white,
-    fontSize: 40,
-    fontWeight: FontWeight.bold,
-  );
+class TripSummary extends StatefulWidget {
+  @override
+  _TripSummaryState createState() => _TripSummaryState();
+}
 
-  final int distanceTravel = Random().nextInt(100000 - 100 + 1) + 100;
-  final int averageSpeed = Random().nextInt(150 - 60 + 1) + 60;
-  final int topSpeed = Random().nextInt(200 - 100 + 1) + 100;
-  final int hoursInTrafficHours = Random().nextInt(24 - 2 + 1) + 2;
-  final int hoursInTrafficMinutes = Random().nextInt(60 - 2 + 1) + 2;
-  final int idleTimeHours = Random().nextInt(24 - 2 + 1) + 2;
-  final int idleTimeMinutes = Random().nextInt(60 - 2 + 1) + 2;
-  final int overSpeedingIncident = Random().nextInt(10 - 2 + 1) + 2;
-  final int sharpTurn = Random().nextInt(10 - 2 + 1) + 2;
-  final int rapidAcceleration = Random().nextInt(10 - 2 + 1) + 2;
-  final int harshBreaking = Random().nextInt(10 - 2 + 1) + 2;
+class _TripSummaryState extends State<TripSummary> {
+  final AuthService _authService = AuthService();
+  late Future<List<Map<String, dynamic>>> _tripSummariesFuture;
+  late String _userId;
 
-  int getRandomValue(int min, int max) => Random().nextInt(max - min + 1) + min;
+  @override
+  void initState() {
+    super.initState();
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      _userId = user.email!; // Use the user's email as the document ID
+      _tripSummariesFuture = _authService.fetchUserData(_userId);
+    } else {
+      throw Exception("User not logged in");
+    }
+  }
 
-  Widget buildRow(String title, String value, {bool isLargeHeader = false}) {
+  Widget buildTripCard(Map<String, dynamic> tripData) {
+    return Card(
+      color: const Color(0xFF2A3A4A),
+      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Trip on ${tripData['Time']}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 10),
+            buildRow('Distance Travel', '${tripData['distnceTravel']} km'),
+            buildRow('Average Speed', '${tripData['averageSpeed']} km/h'),
+            buildRow('Top Speed', '${tripData['topSpeed']} km/h'),
+            buildRow('Hours in Traffic', '${tripData['HoursInTraffic']}'),
+            buildRow('Idle Time', '${tripData['Idle']}'),
+            const SizedBox(height: 10),
+            Text(
+              'Safety Metrics:',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            buildRow('Over Speeding Incidents',
+                '${tripData['overSpeedingIncident']}'),
+            buildRow('Sharp Turns', '${tripData['sharpTurn']}'),
+            buildRow('Rapid Accelerations', '${tripData['rapidAcceleration']}'),
+            buildRow('Harsh Brakings', '${tripData['harshBreaking']}'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildRow(String title, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             title,
-            style: isLargeHeader ? headerStyle : titleStyle,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           Text(
             value,
-            style: valueStyle,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+            ),
           ),
         ],
       ),
@@ -54,55 +96,49 @@ class TripSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
-            Center(
+      backgroundColor: const Color(0xFF1E2A38),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF2A3A4A),
+        title: const Text('Trip Summary'),
+        centerTitle: true,
+      ),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _tripSummariesFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(
               child: Text(
-                'Track-Wise',
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 50,
-                  fontWeight: FontWeight.bold,
+                'Error: ${snapshot.error}',
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            );
+          } else if (snapshot.hasData) {
+            final trips = snapshot.data!;
+            if (trips.isEmpty) {
+              return Center(
+                child: Text(
+                  'No trip data available. Save a trip to get started!',
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
                 ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0),
-              child: Text('Trip Summary', style: headerStyle),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0, top: 5.0),
+              );
+            }
+            return ListView.builder(
+              itemCount: trips.length,
+              itemBuilder: (context, index) {
+                return buildTripCard(trips[index]);
+              },
+            );
+          } else {
+            return Center(
               child: Text(
-                '${getRandomValue(2, 10)} days ${getRandomValue(2, 24)} hours ${getRandomValue(2, 60)} minutes',
-                style: valueStyle.copyWith(fontSize: 16),
+                'Something went wrong. Try again later.',
+                style: const TextStyle(color: Colors.white, fontSize: 16),
               ),
-            ),
-            buildRow('Distance Travel', '$distanceTravel km'),
-            buildRow('Average Speed', '$averageSpeed km/h'),
-            buildRow('Top Speed', '$topSpeed km/h'),
-            buildRow(
-              'Hours in Traffic',
-              '$hoursInTrafficHours hours $hoursInTrafficMinutes minutes',
-            ),
-            buildRow(
-              'Idle Time',
-              '$idleTimeHours hours $idleTimeMinutes minutes',
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 16.0, top: 20.0),
-              child: Text('Trip Safety Matrix', style: headerStyle),
-            ),
-            buildRow('Over Speeding Incident', '$overSpeedingIncident'),
-            buildRow('Sharp Turn', '$sharpTurn'),
-            buildRow('Rapid Acceleration', '$rapidAcceleration'),
-            buildRow('Harsh Breaking', '$harshBreaking'),
-          ],
-        ),
+            );
+          }
+        },
       ),
     );
   }
