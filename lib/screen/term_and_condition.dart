@@ -27,7 +27,7 @@ class TermsAndConditionsPage extends StatelessWidget {
                     ),
                     SizedBox(height: 16),
                     Text(
-                      'Legal Information',
+                      'Terms and Condition',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
