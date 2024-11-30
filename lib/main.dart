@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'screen/login.dart';
-import 'screen/help_support.dart';
-import 'screen/term_and_condition.dart';
 import 'firebase_options.dart';
 
 void main() async {

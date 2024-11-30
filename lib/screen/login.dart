@@ -2,16 +2,118 @@ import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'register.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Controllers for user input
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
-    final AuthService _authService = AuthService();
+  _LoginScreenState createState() => _LoginScreenState();
+}
 
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  void _validateAndLogin() async {
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter email and password.')),
+      );
+    } else {
+      try {
+        final user =
+            await _authService.signInWithEmailPassword(email, password);
+        if (user != null) {
+          // Call saveTripData() after successful login
+          await _authService.saveTripData(userId: user.uid);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Login successful!")),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Invalid email or password")),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: $e")),
+        );
+      }
+    }
+  }
+
+  // Forgot Password dialog logic
+  void _showResetPasswordDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final TextEditingController emailController = TextEditingController();
+        return AlertDialog(
+          title: const Text("Reset Password"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "Enter your email address to receive a password reset link.",
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: emailController,
+                decoration: const InputDecoration(hintText: 'Enter your email'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () async {
+                String email = emailController.text.trim();
+                if (email.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Please enter an email.")),
+                  );
+                } else {
+                  try {
+                    await _authService.sendPasswordResetEmail(email);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text(
+                              "Password reset email sent. Check your inbox.")),
+                    );
+                    Navigator.of(context).pop(); // Close the dialog
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Error: $e")),
+                    );
+                  }
+                }
+              },
+              child: const Text("Send"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF2D3E50),
       body: Center(
@@ -109,9 +211,7 @@ class LoginScreen extends StatelessWidget {
                 const SizedBox(height: 10),
                 // Forgot Password Text
                 GestureDetector(
-                  onTap: () {
-                    // Handle forgot password
-                  },
+                  onTap: _showResetPasswordDialog,
                   child: const Text(
                     'Forgot Password?',
                     style: TextStyle(
@@ -130,38 +230,7 @@ class LoginScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
-                  onPressed: () async {
-                    String email = emailController.text.trim();
-                    String password = passwordController.text.trim();
-
-                    if (email.isEmpty || password.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Please enter email and password.'),
-                        ),
-                      );
-                    } else {
-                      try {
-                        final user = await AuthService()
-                            .signInWithEmailPassword(email, password);
-                        if (user != null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Login successful!")),
-                          );
-                          // Navigate to the home screen or dashboard
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text("Invalid email or password")),
-                          );
-                        }
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Error: $e")),
-                        );
-                      }
-                    }
-                  },
+                  onPressed: _validateAndLogin,
                   child: const Text(
                     'Login',
                     style: TextStyle(fontSize: 18),
