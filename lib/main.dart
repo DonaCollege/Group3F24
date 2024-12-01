@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:trackwise/screen/appSettings.dart';
+import 'package:trackwise/screen/profile_screen.dart';
 import 'screen/login.dart';
 import 'firebase_options.dart';
 import 'screen/dashboard.dart';
