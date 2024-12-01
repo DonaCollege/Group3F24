@@ -200,3 +200,15 @@
 2024-12-01 00:59:22.199: [INFO][SyncEngineBackend::DoStartSyncing] Start syncing
 2024-12-01 01:00:16.160: [INFO][Sync] Reset engine, reason: 0
 2024-12-01 01:00:16.160: [INFO][Sync] Reset engine with reason: 0
+2024-12-01 18:42:43.084: [INFO][Sync] SyncState after authenticated was: FeatureNotRequestedNotSetup
+2024-12-01 18:42:43.376: [INFO][Sync] Try to start sync engine
+2024-12-01 18:42:43.378: [INFO][SyncManagerImpl::NudgeForInitialDownload] Initial download nudge for Encryption Keys
+2024-12-01 18:42:43.378: [INFO][SyncEngineBackend::LoadAndConnectNigoriController] Load and connect Nigori controller
+2024-12-01 18:42:43.378: [INFO][SyncEngineBackend::DoInitialize] Control Types added: Encryption Keys
+2024-12-01 18:42:43.378: [INFO][SyncManagerImpl::ConfigureSyncer] Types to download: Encryption Keys with reason: 3
+2024-12-01 18:42:43.379: [INFO][SyncSchedulerImpl::DoConfigurationSyncCycleJob] Configure job was blocked
+2024-12-01 18:42:43.531: [INFO][SyncAuthManager::SetLastAuthError] Current auth error: None
+2024-12-01 18:42:43.532: [INFO][SyncAuthManager::EdgeLogTokenErrorState] Token error with: None for account type: MSA
+2024-12-01 18:42:43.532: [INFO][Sync] Credentials changed for: EdgeSyncScopeNew
+2024-12-01 18:43:10.316: [INFO][Sync] Reset engine, reason: 0
+2024-12-01 18:43:10.316: [INFO][Sync] Reset engine with reason: 0

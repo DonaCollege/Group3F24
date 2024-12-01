@@ -1,122 +1,178 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Settings Screen',
-      theme: ThemeData.light(), // Default light theme
-      darkTheme: ThemeData.dark(), // Dark theme
-      themeMode: ThemeMode.system, // Use system theme mode by default
-      home: const SettingsPage(),
-    );
-  }
+  State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key});
-
-  @override
-  _SettingsPageState createState() => _SettingsPageState();
-}
-
-class _SettingsPageState extends State<SettingsPage> {
-  bool _isDarkMode = false;
-
-  @override
-  void initState() {
-    super.initState();
-    // Load the theme preference (you can use shared preferences or another method)
-    // For now, we'll just set it to false (light mode)
-  }
-
-  void _toggleDarkMode(bool? value) {
-    setState(() {
-      _isDarkMode = value ?? false;
-    });
-  }
+class _SettingsScreenState extends State<SettingsScreen> {
+  // Settings state
+  bool isDarkMode = false;
+  bool isNotificationsEnabled = true;
+  bool isLocationEnabled = false;
+  double textSize = 16.0;
+  String selectedLanguage = 'English';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
+        elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              'General Settings',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      body: ListView(
+        children: [
+          // General Section
+          _buildSectionHeader('General'),
+          ListTile(
+            leading: const Icon(Icons.language),
+            title: const Text('Language'),
+            subtitle: Text(selectedLanguage),
+            onTap: () {
+              // Handle language selection
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.location_on),
+            title: const Text('Location Services'),
+            subtitle: const Text('Allow app to access location'),
+            trailing: Switch(
+              value: isLocationEnabled,
+              onChanged: (value) {
+                setState(() {
+                  isLocationEnabled = value;
+                });
+              },
             ),
-            const SizedBox(height: 10),
-            _buildSettingOption('Account', () {
-              // Handle account settings action
-            }),
-            _buildSettingOption('Privacy', () {
-              // Handle privacy settings action
-            }),
-            _buildSettingOption('About', () {
-              // Handle about settings action
-            }),
-            const SizedBox(height: 20),
-            const Text(
-              'Notifications',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const Divider(),
+
+          // Notifications Section
+          _buildSectionHeader('Notifications'),
+          ListTile(
+            leading: const Icon(Icons.notifications),
+            title: const Text('Push Notifications'),
+            subtitle: const Text('Enable notifications'),
+            trailing: Switch(
+              value: isNotificationsEnabled,
+              onChanged: (value) {
+                setState(() {
+                  isNotificationsEnabled = value;
+                });
+              },
             ),
-            const SizedBox(height: 10),
-            _buildSwitchOption('Enable Notifications', true, (value) {
-              // Handle notifications toggle
-            }),
-            _buildSwitchOption('Show Alerts', false, (value) {
-              // Handle alerts toggle
-            }),
-            const SizedBox(height: 20),
-            const Text(
-              'Appearance',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          ListTile(
+            leading: const Icon(Icons.email),
+            title: const Text('Email Notifications'),
+            onTap: () {
+              // Handle email notification settings
+            },
+          ),
+          const Divider(),
+
+          // Appearance Section
+          _buildSectionHeader('Appearance'),
+          ListTile(
+            leading: const Icon(Icons.dark_mode),
+            title: const Text('Dark Mode'),
+            subtitle: Text(isDarkMode ? 'On' : 'Off'),
+            trailing: Switch(
+              value: isDarkMode,
+              onChanged: (value) {
+                setState(() {
+                  isDarkMode = value;
+                });
+              },
             ),
-            const SizedBox(height: 10),
-            _buildSwitchOption('Enable Dark Mode', _isDarkMode, _toggleDarkMode),
-            _buildSettingOption('Theme', () {
-              // Handle theme settings action
-            }),
-            _buildSettingOption('Font Size', () {
-              // Handle font size settings action
-            }),
-          ],
+          ),
+          ListTile(
+            leading: const Icon(Icons.text_fields),
+            title: const Text('Text Size'),
+            subtitle: const Text('Adjust text size'),
+            trailing: SizedBox(
+              width: 150,
+              child: Slider(
+                value: textSize,
+                min: 12,
+                max: 24,
+                divisions: 4,
+                label: textSize.round().toString(),
+                onChanged: (value) {
+                  setState(() {
+                    textSize = value;
+                  });
+                },
+              ),
+            ),
+          ),
+          const Divider(),
+
+          // Account Section
+          _buildSectionHeader('Account'),
+          ListTile(
+            leading: const Icon(Icons.person),
+            title: const Text('Profile'),
+            onTap: () {
+              // Navigate to profile
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.security),
+            title: const Text('Privacy'),
+            onTap: () {
+              // Navigate to privacy settings
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: const Text('Sign Out'),
+            onTap: () {
+              // Handle sign out
+            },
+          ),
+          const Divider(),
+
+          // About Section
+          _buildSectionHeader('About'),
+          ListTile(
+            leading: const Icon(Icons.info),
+            title: const Text('App Info'),
+            onTap: () {
+              // Show app info
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.description),
+            title: const Text('Terms of Service'),
+            onTap: () {
+              // Show terms of service
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.privacy_tip),
+            title: const Text('Privacy Policy'),
+            onTap: () {
+              // Show privacy policy
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: Colors.grey,
         ),
-      ),
-    );
-  }
-
-  Widget _buildSettingOption(String title, VoidCallback onTap) {
-    return Card(
-      elevation: 2,
-      child: ListTile(
-        title: Text(title),
-        trailing: const Icon(Icons.arrow_forward),
-        onTap: onTap,
-      ),
-    );
-  }
-
-  Widget _buildSwitchOption(String title, bool value, ValueChanged<bool> onChanged) {
-    return Card(
-      elevation: 2,
-      child: SwitchListTile(
-        title: Text(title),
-        value: value,
-        onChanged: onChanged,
       ),
     );
   }
