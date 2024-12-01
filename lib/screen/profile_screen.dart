@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/user_profile.dart';
 import '../services/profile_services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -16,35 +18,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    _userProfile = _profileService.getUserProfile();
-    _nameController.text = _userProfile.name;
-    _emailController.text = _userProfile.email;
-    _phoneController.text = _userProfile.phone;
-    _addressController.text = _userProfile.address; // Address added here
-  }
+ @override
+void initState() {
+  super.initState();
 
-  void _saveProfile() {
-    UserProfile updatedProfile = UserProfile(
-      name: _nameController.text,
-      email: _emailController.text,
-      phone: _phoneController.text,
-      profilePictureUrl:
-          _userProfile.profilePictureUrl, // Keep the same picture
-      address: _addressController.text, // Save the address
-    );
+  // Get the current user
+  User? user = FirebaseAuth.instance.currentUser;
 
-    _profileService.updateUserProfile(updatedProfile);
+  if (user != null) {
     setState(() {
-      _userProfile = updatedProfile;
+      _nameController.text = user.displayName ?? ""; // If the name is available
+      _emailController.text = user.email ?? "";      // Email of the logged-in user
+      _phoneController.text = user.phoneNumber ?? ""; // If the phone number is linked
     });
+  }
+}
 
+
+  void _saveProfile() async {
+  User? user = FirebaseAuth.instance.currentUser;
+
+  try {
+    // Update Firebase user profile
+    await user?.updateDisplayName(_nameController.text);
+    await user?.updateEmail(_emailController.text);
+
+    // Show success message
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Profile updated successfully!')),
     );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error: $e')),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {
