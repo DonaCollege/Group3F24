@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:trackwise/screen/appSettings.dart';
+import 'package:trackwise/screen/data_access.dart';
+import 'package:trackwise/screen/notification.dart';
+import 'package:trackwise/screen/profile_screen.dart';
+import 'package:trackwise/screen/securitySettings.dart';
 import 'screen/login.dart';
 import 'firebase_options.dart';
 import 'screen/dashboard.dart';
@@ -50,7 +55,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       // Start with the LoginScreen
-      home: LoginScreen(),
+      home: DataAccessScreen(),
       // Define routes for navigation
       routes: {
         '/dashboard': (context) => const DashboardPage(),
