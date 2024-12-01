@@ -107,11 +107,32 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 microphoneAccess = value;
               });
             }),
+            
             _buildLanguageDropdown(),
             _buildDeleteAccountButton(),
             _buildAppVersion(),
           ],
         ),
+      ),
+       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: const Color.fromARGB(255, 0, 60, 110),
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.white,
+        currentIndex: 1, // Set the default selected index to "Settings"
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.pushReplacementNamed(context, '/MyApp'); // Replace with your Dashboard route
+          } else if (index == 1) {
+            Navigator.pushReplacementNamed(context, '/MyApp'); // Replace with your Settings route
+          } else if (index == 2) {
+            Navigator.pushReplacementNamed(context, '/ProfileScreen'); // Replace with your Profile route
+          }
+        },
+        items: [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
+          BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Profile'),
+        ],
       ),
     );
   }
@@ -158,6 +179,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           });
         },
       ),
+      
     );
   }
 
@@ -208,3 +230,4 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     );
   }
 }
+
