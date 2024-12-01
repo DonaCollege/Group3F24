@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-//import 'dashboard_page.dart'; // Update with the correct import path
+import 'map.dart';
 
 void main() {
   runApp(const MyApp());
@@ -49,7 +49,7 @@ class _DashboardPageState extends State<DashboardPage> {
     if (isTripActive) {
       setState(() {
         // Simulate score changes (replace with real scoring logic)
-        drivingScore = drivingScore - (drivingScore > 50 ? 5 : 0);
+        drivingScore = (drivingScore > 0) ? drivingScore - 5 : 0; // Prevent negative score
       });
     }
   }
@@ -74,8 +74,8 @@ class _DashboardPageState extends State<DashboardPage> {
                 color: drivingScore > 80 
                     ? Colors.green 
                     : drivingScore > 60 
-                        ? const Color.fromARGB(255, 255, 255, 255) 
-                        : const Color.fromARGB(255, 54, 162, 244),
+                        ? Colors.orange 
+                        : Colors.red,
               ),
             ),
           ],

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 import 'register.dart';
+import 'dashboard.dart'; 
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -21,7 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _validateAndLogin() async {
+  Future<void> _validateAndLogin() async {
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
 
@@ -29,31 +31,31 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter email and password.')),
       );
-    } else {
-      try {
-        final user =
-            await _authService.signInWithEmailPassword(email, password);
-        if (user != null) {
-          // Call saveTripData() after successful login
-          await _authService.saveTripData(userId: user.uid);
+      return;
+    }
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Login successful!")),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Invalid email or password")),
-          );
-        }
-      } catch (e) {
+    try {
+      final user = await _authService.signInWithEmailPassword(email, password);
+      if (user != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: $e")),
+          const SnackBar(content: Text("Login successful!")),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const DashboardPage()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Invalid email or password.")),
         );
       }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
     }
   }
 
-  // Forgot Password dialog logic
   void _showResetPasswordDialog() {
     showDialog(
       context: context,
@@ -77,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
               child: const Text("Cancel"),
             ),
@@ -96,7 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           content: Text(
                               "Password reset email sent. Check your inbox.")),
                     );
-                    Navigator.of(context).pop(); // Close the dialog
+                    Navigator.of(context).pop();
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text("Error: $e")),
@@ -150,28 +152,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           builder: (context) => const RegisterScreen()),
                     );
                   },
-                  child: RichText(
-                    text: TextSpan(
-                      children: [
-                        const TextSpan(
-                          text: "Don't have an account? ",
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 14,
-                          ),
-                        ),
-                        const TextSpan(
-                          text: "Create One",
-                          style: TextStyle(
-                            color: Colors.grey,
-                            decoration: TextDecoration.underline,
-                            decorationColor: Colors.blue,
-                            decorationThickness: 2.0,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                  child: const Text(
+                    "Don't have an account? Create One",
+                    style: TextStyle(
+                      color: Colors.blueAccent,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.underline,
                     ),
                   ),
                 ),
@@ -236,38 +223,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(fontSize: 18),
                   ),
                 ),
-                const SizedBox(height: 20),
-                // Google Sign-In Button (optional, you can implement it later)
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 40, vertical: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  icon: Image.asset('lib/assets/google_icon.png', width: 24),
-                  label: const Text(
-                    'Sign in with Google',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                  onPressed: () async {
-                    final user = await _authService.signInWithGoogle();
-                    if (user != null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text("Google Sign-In successful!")),
-                      );
-                      // Navigate to the home screen or dashboard
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Google Sign-In failed")),
-                      );
-                    }
-                  },
-                ),
-                const SizedBox(height: 10),
               ],
             ),
           ),
