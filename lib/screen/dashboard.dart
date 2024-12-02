@@ -17,7 +17,7 @@ class _DashboardPageState extends State<DashboardPage> {
   DateTime? tripStartTime;
   List<String> warnings = [
     'Over Speeding near Wonderland Exit 401',
-    'Harsh Break detected',
+    'Harsh Brake Detected',
     'Late Night Driving Patterns'
   ];
   SharedPreferences? _prefs;
@@ -28,11 +28,11 @@ class _DashboardPageState extends State<DashboardPage> {
     _initPrefs();
     _checkLocationPermission();
 
-    // Set the status bar color to match the UI
+    // Set the status bar color
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
-        statusBarColor: Color(0xFF1F2937), // Dark background color
-        statusBarIconBrightness: Brightness.light, // Light icons
+        statusBarColor: Color(0xFF1F2937),
+        statusBarIconBrightness: Brightness.light,
       ),
     );
   }
@@ -69,6 +69,22 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
+  void calculateDrivingScore({
+    required double speed,
+    required double acceleration,
+    required double braking,
+  }) {
+    setState(() {
+      double score = 100.0;
+
+      if (speed > 80) score -= (speed - 80) * 0.5;
+      if (acceleration > 2.5) score -= (acceleration - 2.5) * 5;
+      if (braking > 3.0) score -= (braking - 3.0) * 5;
+
+      drivingScore = score.clamp(0.0, 100.0);
+    });
+  }
+
   void _showMessage(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -79,11 +95,7 @@ class _DashboardPageState extends State<DashboardPage> {
   void _toggleTrip() {
     setState(() {
       isTripActive = !isTripActive;
-      if (isTripActive) {
-        tripStartTime = DateTime.now();
-      } else {
-        tripStartTime = null;
-      }
+      tripStartTime = isTripActive ? DateTime.now() : null;
       if (_prefs != null) {
         _prefs!.setBool('isTripActive', isTripActive);
         if (tripStartTime != null) {
@@ -95,12 +107,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
   String _formatTripDuration() {
     if (tripStartTime == null) return '0h 0m 0s';
-    final now = DateTime.now();
-    final difference = now.difference(tripStartTime!);
-    final hours = difference.inHours;
-    final minutes = difference.inMinutes % 60;
-    final seconds = difference.inSeconds % 60;
-    return '${hours}h ${minutes}m ${seconds}s';
+    final difference = DateTime.now().difference(tripStartTime!);
+    return '${difference.inHours}h ${difference.inMinutes % 60}m ${difference.inSeconds % 60}s';
   }
 
   @override
@@ -117,149 +125,132 @@ class _DashboardPageState extends State<DashboardPage> {
         backgroundColor: Colors.transparent,
         body: SafeArea(
           child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 30),
-                  // Score Section
-                  Text(
-                    'Driving Score',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.white.withOpacity(0.9),
-                      fontWeight: FontWeight.w500,
-                    ),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 30),
+                Text(
+                  'Driving Score',
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white.withOpacity(0.9),
+                    fontWeight: FontWeight.w500,
                   ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    height: 200,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        CustomPaint(
-                          size: const Size(200, 200),
-                          painter: GaugePainter(score: drivingScore),
-                        ),
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '${drivingScore.toInt()}/100',
-                              style: const TextStyle(
-                                fontSize: 36,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              _formatTripDuration(),
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white.withOpacity(0.7),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  // Navigation Options
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  height: 200,
+                  child: Stack(
+                    alignment: Alignment.center,
                     children: [
-                      _buildNavButton(
-                        icon: Icons.map_outlined,
-                        label: 'Map',
-                        onTap: () => Navigator.pushNamed(context, '/map'),
+                      CustomPaint(
+                        size: const Size(200, 200),
+                        painter: GaugePainter(score: drivingScore),
                       ),
-                      _buildNavButton(
-                        icon: Icons.history,
-                        label: 'History',
-                        onTap: () {},
+                      Column(
+                        children: [
+                          Text(
+                            '${drivingScore.toInt()}/100',
+                            style: const TextStyle(
+                              fontSize: 36,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _formatTripDuration(),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white.withOpacity(0.7),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 30),
-                  // Warnings Section
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: Colors.red.withOpacity(0.3),
-                        width: 1,
-                      ),
+                ),
+                const SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildNavButton(
+                      icon: Icons.map_outlined,
+                      label: 'Map',
+                      onTap: () => Navigator.pushNamed(context, '/map'),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Warnings',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.red,
-                          ),
+                    _buildNavButton(
+                      icon: Icons.history,
+                      label: 'History',
+                      onTap: () {}, // Placeholder for future functionality
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 30),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.red.withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Warnings',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.red,
                         ),
-                        const SizedBox(height: 12),
-                        ...warnings.map((warning) => Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.warning_amber_rounded,
-                                    color: Colors.red,
-                                    size: 20,
+                      ),
+                      const SizedBox(height: 12),
+                      ...warnings.map((warning) => Row(
+                            children: [
+                              const Icon(Icons.warning_amber_rounded,
+                                  color: Colors.red, size: 20),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  warning,
+                                  style: TextStyle(
+                                    color: Colors.red.shade300,
+                                    fontSize: 14,
                                   ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      warning,
-                                      style: TextStyle(
-                                        color: Colors.red.shade300,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
-                            )),
-                      ],
+                            ],
+                          )),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: _toggleTrip,
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: isTripActive ? Colors.red : Colors.green,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 48,
+                      vertical: 16,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  const SizedBox(height: 30),
-                  // Trip Button
-                  ElevatedButton(
-                    onPressed: _toggleTrip,
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: isTripActive ? Colors.red : Colors.green,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 48,
-                        vertical: 16,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      elevation: 4,
-                    ),
-                    child: Text(
-                      isTripActive ? 'End Trip' : 'Start Trip',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                  child: Text(
+                    isTripActive ? 'End Trip' : 'Start Trip',
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 30),
-                ],
-              ),
+                ),
+                const SizedBox(height: 30),
+              ],
             ),
           ),
         ),
@@ -287,10 +278,7 @@ class _DashboardPageState extends State<DashboardPage> {
             const SizedBox(height: 8),
             Text(
               label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-              ),
+              style: const TextStyle(color: Colors.white, fontSize: 14),
             ),
           ],
         ),
@@ -323,9 +311,9 @@ class GaugePainter extends CustomPainter {
       paint,
     );
 
-    // Foreground arc (driving score)
+    // Foreground arc
     paint.color = _getScoreColor();
-    final sweepAngle = (math.pi * (score / 100));
+    final sweepAngle = math.pi * (score / 100);
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
       math.pi,
@@ -337,12 +325,10 @@ class GaugePainter extends CustomPainter {
 
   Color _getScoreColor() {
     if (score >= 80) return Colors.green;
-    if (score >= 60) return Colors.yellow;
+    if (score >= 50) return Colors.yellow;
     return Colors.red;
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
-  }
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

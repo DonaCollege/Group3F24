@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'privacyPolicy.dart';
+import 'appInfo.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -141,7 +143,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             leading: const Icon(Icons.info),
             title: const Text('App Info'),
             onTap: () {
-              // Show app info
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AppInfoScreen(),
+                ),
+              );
             },
           ),
           ListTile(
@@ -155,7 +162,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             leading: const Icon(Icons.privacy_tip),
             title: const Text('Privacy Policy'),
             onTap: () {
-              // Show privacy policy
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PrivacyPolicyScreen(),
+                ),
+              );
             },
           ),
         ],

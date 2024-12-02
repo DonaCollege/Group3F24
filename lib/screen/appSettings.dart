@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'privacyPolicy.dart';
+import 'appInfo.dart';
 
 class AppSettingsPage extends StatefulWidget {
   @override
@@ -24,12 +26,14 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       'parentalMonitoring': 'Enable Parental Monitoring',
       'sensorAccess': 'Sensor Access',
       'speedometer': 'Speedometer',
-      'gyroscope': 'Gyros2cope',
+      'gyroscope': 'Gyroscope',
       'magnetometer': 'Magnetometer',
       'microphone': 'Microphone',
       'language': 'Language',
       'deleteAccount': 'Delete Account',
       'appVersion': 'App Version',
+      'privacyPolicy': 'Privacy Policy',
+      'appInfo': 'App Info',
     },
     'French': {
       'privacy': 'Confidentialité',
@@ -44,6 +48,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       'language': 'Langue',
       'deleteAccount': 'Supprimer le Compte',
       'appVersion': 'Version de l’Application',
+      'privacyPolicy': 'Politique de Confidentialité',
+      'appInfo': 'Informations sur l’Application',
     },
   };
 
@@ -78,12 +84,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 dataSharing = value;
               });
             }),
-            _buildSwitchTile(
-                translate('parentalMonitoring'), parentalMonitoring, (value) {
+            _buildSwitchTile(translate('parentalMonitoring'), parentalMonitoring, (value) {
               setState(() {
                 parentalMonitoring = value;
               });
             }),
+            _buildListTile(translate('privacyPolicy'), PrivacyPolicyScreen()),
             _buildSectionHeader(translate('sensorAccess')),
             _buildSwitchTile(translate('speedometer'), speedometerAccess, (value) {
               setState(() {
@@ -95,8 +101,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 gyroscopeAccess = value;
               });
             }),
-            _buildSwitchTile(
-                translate('magnetometer'), magnetometerAccess, (value) {
+            _buildSwitchTile(translate('magnetometer'), magnetometerAccess, (value) {
               setState(() {
                 magnetometerAccess = value;
               });
@@ -106,32 +111,12 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                 microphoneAccess = value;
               });
             }),
-            
+            _buildListTile(translate('appInfo'), AppInfoScreen()),
             _buildLanguageDropdown(),
             _buildDeleteAccountButton(),
             _buildAppVersion(),
           ],
         ),
-      ),
-       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color.fromARGB(255, 0, 60, 110),
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.white,
-        currentIndex: 1, // Set the default selected index to "Settings"
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.pushReplacementNamed(context, '/MyApp'); // Replace with your Dashboard route
-          } else if (index == 1) {
-            Navigator.pushReplacementNamed(context, '/MyApp'); // Replace with your Settings route
-          } else if (index == 2) {
-            Navigator.pushReplacementNamed(context, '/ProfileScreen'); // Replace with your Profile route
-          }
-        },
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
-          BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Profile'),
-        ],
       ),
     );
   }
@@ -157,6 +142,22 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     );
   }
 
+  Widget _buildListTile(String title, Widget screen) {
+    return ListTile(
+      title: Text(
+        title,
+        style: TextStyle(color: Colors.white),
+      ),
+      trailing: Icon(Icons.arrow_forward, color: Colors.white),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => screen),
+        );
+      },
+    );
+  }
+
   Widget _buildLanguageDropdown() {
     return ListTile(
       title: Text(
@@ -178,7 +179,6 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
           });
         },
       ),
-      
     );
   }
 
@@ -187,7 +187,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       padding: EdgeInsets.symmetric(vertical: 16),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.red,
+          backgroundColor: Colors.red,
         ),
         onPressed: () {
           showDialog(
@@ -229,4 +229,3 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     );
   }
 }
-

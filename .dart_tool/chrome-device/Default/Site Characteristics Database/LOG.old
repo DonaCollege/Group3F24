@@ -1,10 +1,18 @@
-2024/12/01-13:42:43.092 21d4 Log #3: 3 ops saved to Table #7 OK
-2024/12/01-13:42:43.096 21d4 Archiving C:\Users\kurup\AppData\Local\Temp\flutter_tools.e042b68a\flutter_tools_chrome_device.f1f43592\Default\Site Characteristics Database/000003.log: OK
-2024/12/01-13:42:43.101 21d4 Log #6: 12 ops saved to Table #8 OK
-2024/12/01-13:42:43.102 21d4 Archiving C:\Users\kurup\AppData\Local\Temp\flutter_tools.e042b68a\flutter_tools_chrome_device.f1f43592\Default\Site Characteristics Database/000006.log: OK
-2024/12/01-13:42:43.103 21d4 Table #4: 3 entries OK
-2024/12/01-13:42:43.106 21d4 Table #6: 3 entries OK
-2024/12/01-13:42:43.106 21d4 Table #7: 3 entries OK
-2024/12/01-13:42:43.107 21d4 Table #8: 12 entries OK
-2024/12/01-13:42:43.114 21d4 Archiving C:\Users\kurup\AppData\Local\Temp\flutter_tools.e042b68a\flutter_tools_chrome_device.f1f43592\Default\Site Characteristics Database/MANIFEST-000001: OK
-2024/12/01-13:42:43.125 21d4 **** Repaired leveldb C:\Users\kurup\AppData\Local\Temp\flutter_tools.e042b68a\flutter_tools_chrome_device.f1f43592\Default\Site Characteristics Database; recovered 4 files; 1004 bytes. Some data may have been lost. ****
+2024/12/02-17:32:07.068 1698 Reusing MANIFEST C:\Users\kurup\AppData\Local\Temp\flutter_tools.b31fddca\flutter_tools_chrome_device.ae743ac1\Default\Site Characteristics Database/MANIFEST-000001
+2024/12/02-17:32:07.069 1698 Recovering log #3
+2024/12/02-17:32:07.070 1698 Level-0 table #19: started
+2024/12/02-17:32:07.076 1698 Level-0 table #19: 219 bytes OK
+2024/12/02-17:32:07.077 1698 Recovering log #6
+2024/12/02-17:32:07.078 1698 Level-0 table #20: started
+2024/12/02-17:32:07.084 1698 Level-0 table #20: 347 bytes OK
+2024/12/02-17:32:07.085 1698 Recovering log #10
+2024/12/02-17:32:07.085 1698 Level-0 table #21: started
+2024/12/02-17:32:07.091 1698 Level-0 table #21: 165 bytes OK
+2024/12/02-17:32:07.093 1698 Recovering log #16
+2024/12/02-17:32:07.094 1698 Reusing old log C:\Users\kurup\AppData\Local\Temp\flutter_tools.b31fddca\flutter_tools_chrome_device.ae743ac1\Default\Site Characteristics Database/000016.log 
+2024/12/02-17:32:07.098 1698 Delete type=0 #3
+2024/12/02-17:32:07.099 1698 Delete type=2 #4
+2024/12/02-17:32:07.099 1698 Delete type=2 #6
+2024/12/02-17:32:07.099 1698 Delete type=0 #6
+2024/12/02-17:32:07.099 1698 Delete type=0 #10
+2024/12/02-17:32:07.099 1698 Delete type=2 #11

@@ -1,8 +1,107 @@
 {
-   "checksum": "d86b6814c0644121ee722a3423390ef3",
+   "checksum": "fe83bd4640ee45e3ec090ea3bfa5e8bb",
    "roots": {
       "bookmark_bar": {
          "children": [ {
+            "date_added": "13377652737570817",
+            "date_last_used": "0",
+            "guid": "f9602eb9-7b6e-4735-a4b6-a212a1cd8171",
+            "id": "93",
+            "name": "Lenovo Support",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://support.lenovo.com/",
+            "visit_count": 0
+         }, {
+            "date_added": "13377652737570643",
+            "date_last_used": "0",
+            "guid": "f659d71c-bfcc-4d60-b947-0c2ebe686a3a",
+            "id": "92",
+            "name": "Lenovo",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://www.lenovo.com/",
+            "visit_count": 0
+         }, {
+            "date_added": "13377652737570170",
+            "date_last_used": "0",
+            "guid": "6fb3656b-7886-4ee6-8e56-09a455a110d7",
+            "id": "91",
+            "name": "McAfee",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://www.mcafee.com/consumer/v/browserfav/lenovo.html",
+            "visit_count": 0
+         }, {
+            "date_added": "13377652327438439",
+            "date_last_used": "0",
+            "guid": "5d4b708f-e4a0-4048-938e-e055b8a714d2",
+            "id": "88",
+            "name": "Lenovo Support",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://support.lenovo.com/",
+            "visit_count": 0
+         }, {
+            "date_added": "13377652327438249",
+            "date_last_used": "0",
+            "guid": "5ff6b5cf-8c33-4f5a-8389-78471c647435",
+            "id": "87",
+            "name": "Lenovo",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://www.lenovo.com/",
+            "visit_count": 0
+         }, {
+            "date_added": "13377652327437824",
+            "date_last_used": "0",
+            "guid": "0a2dd1f2-bf50-4032-8c72-3ea09bd76026",
+            "id": "86",
+            "name": "McAfee",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://www.mcafee.com/consumer/v/browserfav/lenovo.html",
+            "visit_count": 0
+         }, {
+            "date_added": "13377652133959660",
+            "date_last_used": "0",
+            "guid": "2b015ee3-28c5-4708-9c42-38517bad92e6",
+            "id": "83",
+            "name": "Lenovo Support",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://support.lenovo.com/",
+            "visit_count": 0
+         }, {
+            "date_added": "13377652133959474",
+            "date_last_used": "0",
+            "guid": "0c130b1f-fed0-418f-add9-ef7de49346fb",
+            "id": "82",
+            "name": "Lenovo",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://www.lenovo.com/",
+            "visit_count": 0
+         }, {
+            "date_added": "13377652133958967",
+            "date_last_used": "0",
+            "guid": "f33be5a1-cc2c-4eff-a723-697877a0dc28",
+            "id": "81",
+            "name": "McAfee",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://www.mcafee.com/consumer/v/browserfav/lenovo.html",
+            "visit_count": 0
+         }, {
             "date_added": "13377552163298854",
             "date_last_used": "0",
             "guid": "94b43be8-5e3a-4a84-a1d1-af5922d29cf9",
@@ -194,7 +293,7 @@
          } ],
          "date_added": "13377488194655953",
          "date_last_used": "0",
-         "date_modified": "13377552163298854",
+         "date_modified": "13377652737570817",
          "guid": "0bc5d13f-2cba-5d74-951f-3f233fe6c908",
          "id": "1",
          "name": "Favorites bar",

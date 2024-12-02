@@ -6,7 +6,7 @@ import 'firebase_options.dart';
 import 'screen/login.dart';
 import 'screen/dashboard.dart';
 import 'screen/map.dart';
-import 'screen/settings.dart';
+import 'screen/appSettings.dart';
 import 'screen/profile_screen.dart';
 
 void main() async {
@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
         '/dashboard': (context) => const DashboardPage(),
         '/map': (context) => MapScreen(),
         '/profile': (context) => ProfileScreen(),
-        '/settings': (context) => const SettingsScreen(),
+        '/appSettings': (context) =>  AppSettingsPage(),
       },
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
@@ -96,7 +96,7 @@ class _MainScreenState extends State<MainScreen> {
       case 1:
         return  ProfileScreen(); // Profile screen
       case 2:
-        return const SettingsScreen(); // Settings screen
+        return  AppSettingsPage(); // Settings screen
       default:
         return const DashboardPage();
     }
