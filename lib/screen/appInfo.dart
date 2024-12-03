@@ -6,6 +6,7 @@ class AppInfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF2D3E50),
       appBar: AppBar(
         title: const Text('App Info'),
       ),

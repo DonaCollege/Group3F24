@@ -12,6 +12,8 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -26,11 +28,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     final userProfile = UserProfile(
-      name: _usernameController.text,
+      firstName: _firstNameController.text,
+      lastName: _lastNameController.text,
+      username: _usernameController.text,
       email: _emailController.text,
-      phone: '', // Add input for phone if required
-      address: '', // Add input for address if required
-      profilePictureUrl: '', // Add URL input if needed
     );
 
     try {
@@ -78,6 +79,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               const SizedBox(height: 20),
+              _buildTextField(_firstNameController, 'Enter your First Name'),
+              const SizedBox(height: 12),
+              _buildTextField(_lastNameController, 'Enter your Last Name'),
+              const SizedBox(height: 12),
               _buildTextField(_emailController, 'Enter your Email'),
               const SizedBox(height: 12),
               _buildTextField(_usernameController, 'Enter the Username'),
@@ -169,7 +174,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: TextStyle(color: Colors.white),
+        hintStyle: const TextStyle(color: Colors.white),
         filled: true,
         fillColor: Colors.grey,
         border: OutlineInputBorder(
