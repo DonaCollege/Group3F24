@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:math' as math;
+import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trackwise/screen/map.dart';
 import 'package:trackwise/screen/trip_summary.dart';
@@ -16,30 +17,38 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  double drivingScore = 30.0;
+  double drivingScore = 100.0;
   bool isTripActive = false;
   DateTime? tripStartTime;
-  List<String> warnings = [
-    'Over Speeding near Wonderland Exit 401',
-    'Harsh Brake Detected',
-    'Late Night Driving Patterns'
-  ];
+  List<Position> tripPositions = [];
+  List<double> speeds = [];
+  List<double> accelerations = [];
+  Timer? _timer;
+  List<String> warnings = [];
   SharedPreferences? _prefs;
-  int _currentIndex = 0; // Track the selected index for the bottom navigation
+  int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
     _initPrefs();
     _checkLocationPermission();
+    if (isTripActive) {
+      _startTracking();
+    }
 
-    // Set the status bar color
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Color(0xFF1F2937),
         statusBarIconBrightness: Brightness.light,
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   Future<void> _initPrefs() async {
@@ -74,20 +83,91 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
-  void calculateDrivingScore({
-    required double speed,
-    required double acceleration,
-    required double braking,
-  }) {
+  void _startTracking() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+      if (!isTripActive) {
+        timer.cancel();
+        return;
+      }
+
+      try {
+        Position position = await Geolocator.getCurrentPosition();
+        tripPositions.add(position);
+
+        if (tripPositions.length >= 2) {
+          double currentSpeed = position.speed * 3.6; // Convert to km/h
+          speeds.add(currentSpeed);
+
+          Position previousPosition = tripPositions[tripPositions.length - 2];
+          double previousSpeed = previousPosition.speed * 3.6;
+          double acceleration = (currentSpeed - previousSpeed) / 1; // 1 second interval
+          accelerations.add(acceleration);
+
+          _updateDrivingScore();
+          _updateWarnings(currentSpeed, acceleration);
+        }
+      } catch (e) {
+        debugPrint('Error tracking position: $e');
+      }
+    });
+  }
+
+  void _updateWarnings(double currentSpeed, double acceleration) {
     setState(() {
-      double score = 100.0;
+      warnings.clear();
 
-      if (speed > 80) score -= (speed - 80) * 0.5;
-      if (acceleration > 2.5) score -= (acceleration - 2.5) * 5;
-      if (braking > 3.0) score -= (braking - 3.0) * 5;
+      if (currentSpeed > 110) {
+        warnings.add('Exceeding speed limit: ${currentSpeed.toStringAsFixed(1)} km/h');
+      }
 
+      if (acceleration.abs() > 3.0) {
+        warnings.add(acceleration > 0
+            ? 'Harsh acceleration detected'
+            : 'Harsh braking detected');
+      }
+
+      if (DateTime.now().hour >= 22 || DateTime.now().hour <= 5) {
+        warnings.add('Late night driving detected');
+      }
+    });
+  }
+
+  void _updateDrivingScore() {
+    double score = 100.0;
+
+    double avgSpeed = speeds.isEmpty ? 0 : speeds.reduce((a, b) => a + b) / speeds.length;
+    if (avgSpeed > 110) {
+      score -= (avgSpeed - 110) * 2;
+    }
+
+    for (double acceleration in accelerations) {
+      if (acceleration.abs() > 3.0) {
+        score -= (acceleration.abs() - 3.0) * 5;
+      }
+    }
+
+    if (speeds.length > 10) {
+      double speedVariance = _calculateVariance(speeds);
+      if (speedVariance < 5) {
+        score += 5;
+      }
+    }
+
+    DateTime now = DateTime.now();
+    if (now.hour >= 22 || now.hour <= 5) {
+      score -= 5;
+    }
+
+    setState(() {
       drivingScore = score.clamp(0.0, 100.0);
     });
+  }
+
+  double _calculateVariance(List<double> values) {
+    if (values.isEmpty) return 0;
+    double mean = values.reduce((a, b) => a + b) / values.length;
+    double sumSquaredDiff = values.map((x) => math.pow(x - mean, 2).toDouble()).reduce((a, b) => a + b);
+    return sumSquaredDiff / values.length;
   }
 
   void _showMessage(String message) {
@@ -100,7 +180,16 @@ class _DashboardPageState extends State<DashboardPage> {
   void _toggleTrip() {
     setState(() {
       isTripActive = !isTripActive;
-      tripStartTime = isTripActive ? DateTime.now() : null;
+      if (isTripActive) {
+        tripStartTime = DateTime.now();
+        tripPositions.clear();
+        speeds.clear();
+        accelerations.clear();
+        _startTracking();
+      } else {
+        _timer?.cancel();
+      }
+
       if (_prefs != null) {
         _prefs!.setBool('isTripActive', isTripActive);
         if (tripStartTime != null) {
@@ -154,6 +243,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         painter: GaugePainter(score: drivingScore),
                       ),
                       Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
                             '${drivingScore.toInt()}/100',
@@ -196,15 +286,14 @@ class _DashboardPageState extends State<DashboardPage> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => TripSummary()),
+                          MaterialPageRoute(builder: (context) => TripSummary()),
                         );
                       },
                     ),
                   ],
                 ),
                 const SizedBox(height: 30),
-                Container(
+                if (warnings.isNotEmpty) Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
@@ -227,22 +316,25 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      ...warnings.map((warning) => Row(
-                            children: [
-                              const Icon(Icons.warning_amber_rounded,
-                                  color: Colors.red, size: 20),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  warning,
-                                  style: TextStyle(
-                                    color: Colors.red.shade300,
-                                    fontSize: 14,
-                                  ),
+                      ...warnings.map((warning) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.warning_amber_rounded,
+                                color: Colors.red, size: 20),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                warning,
+                                style: TextStyle(
+                                  color: Colors.red.shade300,
+                                  fontSize: 14,
                                 ),
                               ),
-                            ],
-                          )),
+                            ),
+                          ],
+                        ),
+                      )),
                     ],
                   ),
                 ),
@@ -263,7 +355,9 @@ class _DashboardPageState extends State<DashboardPage> {
                   child: Text(
                     isTripActive ? 'End Trip' : 'Start Trip',
                     style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold
+                    ),
                   ),
                 ),
                 const SizedBox(height: 30),
@@ -275,7 +369,7 @@ class _DashboardPageState extends State<DashboardPage> {
           backgroundColor: const Color.fromARGB(255, 0, 60, 110),
           selectedItemColor: Colors.blue,
           unselectedItemColor: Colors.white,
-          currentIndex: _currentIndex, // Adjust to set Dashboard as selected
+          currentIndex: _currentIndex,
           onTap: (index) {
             setState(() {
               _currentIndex = index;
@@ -299,10 +393,8 @@ class _DashboardPageState extends State<DashboardPage> {
           },
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.settings), label: 'Settings'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.account_circle), label: 'Profile'),
+            BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
+            BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Profile'),
           ],
         ),
       ),
@@ -368,7 +460,7 @@ class GaugePainter extends CustomPainter {
 
     // Foreground arc
     paint.color = _getScoreColor();
-    final sweepAngle = math.pi * (score / 100);
+    final sweepAngle = (score / 100) * math.pi;
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
       math.pi,
