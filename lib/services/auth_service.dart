@@ -377,8 +377,6 @@ class AuthService {
   User? get currentUser => _auth.currentUser;
 
   Future<Map<String, dynamic>?> fetchDetails(String userId) async {
-    // Your logic to fetch user details from Firestore or any other database
-    // Example:
     try {
       final snapshot = await FirebaseFirestore.instance
           .collection('users')
