@@ -1,15 +1,13 @@
 class UserProfile {
-  final String name;
   final String email;
-  final String phone;
-  final String profilePictureUrl;
-  final String address; // New property for address
+  final String firstName;
+  final String lastName;
+  final String username;
 
   UserProfile({
-    required this.name,
     required this.email,
-    required this.phone,
-    required this.profilePictureUrl,
-    required this.address, // Include address in the constructor
+    required this.firstName,
+    required this.lastName,
+    required this.username,
   });
 }
