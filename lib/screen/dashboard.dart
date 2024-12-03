@@ -1,3 +1,5 @@
+import 'dart:ffi' as ffi;
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -27,6 +29,14 @@ class _DashboardPageState extends State<DashboardPage> {
   List<String> warnings = [];
   SharedPreferences? _prefs;
   int _currentIndex = 0;
+
+  double distanceTravel = 8569.0;
+  double averageSpeed = 90.0;
+  double topSpeed = 150.0;
+  double overSpeedingIncidents = 5;
+  double sharpTurns = 8;
+  double rapidAccelerations = 10;
+  double harshBrakings = 8;
 
   @override
   void initState() {
@@ -100,7 +110,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
           Position previousPosition = tripPositions[tripPositions.length - 2];
           double previousSpeed = previousPosition.speed * 3.6;
-          double acceleration = (currentSpeed - previousSpeed) / 1; // 1 second interval
+          double acceleration =
+              (currentSpeed - previousSpeed) / 1; // 1 second interval
           accelerations.add(acceleration);
 
           _updateDrivingScore();
@@ -117,7 +128,8 @@ class _DashboardPageState extends State<DashboardPage> {
       warnings.clear();
 
       if (currentSpeed > 110) {
-        warnings.add('Exceeding speed limit: ${currentSpeed.toStringAsFixed(1)} km/h');
+        warnings.add(
+            'Exceeding speed limit: ${currentSpeed.toStringAsFixed(1)} km/h');
       }
 
       if (acceleration.abs() > 3.0) {
@@ -135,7 +147,8 @@ class _DashboardPageState extends State<DashboardPage> {
   void _updateDrivingScore() {
     double score = 100.0;
 
-    double avgSpeed = speeds.isEmpty ? 0 : speeds.reduce((a, b) => a + b) / speeds.length;
+    double avgSpeed =
+        speeds.isEmpty ? 0 : speeds.reduce((a, b) => a + b) / speeds.length;
     if (avgSpeed > 110) {
       score -= (avgSpeed - 110) * 2;
     }
@@ -166,7 +179,9 @@ class _DashboardPageState extends State<DashboardPage> {
   double _calculateVariance(List<double> values) {
     if (values.isEmpty) return 0;
     double mean = values.reduce((a, b) => a + b) / values.length;
-    double sumSquaredDiff = values.map((x) => math.pow(x - mean, 2).toDouble()).reduce((a, b) => a + b);
+    double sumSquaredDiff = values
+        .map((x) => math.pow(x - mean, 2).toDouble())
+        .reduce((a, b) => a + b);
     return sumSquaredDiff / values.length;
   }
 
@@ -205,6 +220,46 @@ class _DashboardPageState extends State<DashboardPage> {
     return '${difference.inHours}h ${difference.inMinutes % 60}m ${difference.inSeconds % 60}s';
   }
 
+  double calculateTripScore({
+    required double distanceTravel,
+    required double averageSpeed,
+    required double topSpeed,
+    required double overSpeedingIncidents,
+    required double sharpTurns,
+    required double rapidAccelerations,
+    required double harshBrakings,
+  }) {
+    // Base score starts at 100
+    double score = 100.0;
+
+    // Deduct points for over-speeding incidents
+    score -= overSpeedingIncidents * 1.5;
+
+    // Deduct points for sharp turns
+    score -= sharpTurns * 1.0;
+
+    // Deduct points for rapid accelerations
+    score -= rapidAccelerations * 1.2;
+
+    // Deduct points for harsh braking
+    score -= harshBrakings * 1.2;
+
+    // Penalize for high top speed (above a safety threshold)
+    if (topSpeed > 120) {
+      score -= (topSpeed - 120) * 0.1;
+    }
+
+    // Adjust score based on average speed (ideal range: 50-90)
+    if (averageSpeed < 50) {
+      score -= (50 - averageSpeed) * 0.2; // Deduct for driving too slowly
+    } else if (averageSpeed > 90) {
+      score -= (averageSpeed - 90) * 0.2; // Deduct for driving too fast
+    }
+
+    // Ensure the score is within 0-100 range
+    return score.clamp(0, 100);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -240,13 +295,30 @@ class _DashboardPageState extends State<DashboardPage> {
                     children: [
                       CustomPaint(
                         size: const Size(200, 200),
-                        painter: GaugePainter(score: drivingScore),
+                        painter: GaugePainter(
+                            score: calculateTripScore(
+                          distanceTravel: distanceTravel,
+                          averageSpeed: averageSpeed,
+                          topSpeed: topSpeed,
+                          overSpeedingIncidents: overSpeedingIncidents,
+                          sharpTurns: sharpTurns,
+                          rapidAccelerations: rapidAccelerations,
+                          harshBrakings: harshBrakings,
+                        )),
                       ),
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            '${drivingScore.toInt()}/100',
+                            '${calculateTripScore(
+                              distanceTravel: distanceTravel,
+                              averageSpeed: averageSpeed,
+                              topSpeed: topSpeed,
+                              overSpeedingIncidents: overSpeedingIncidents,
+                              sharpTurns: sharpTurns,
+                              rapidAccelerations: rapidAccelerations,
+                              harshBrakings: harshBrakings,
+                            )}',
                             style: const TextStyle(
                               fontSize: 36,
                               fontWeight: FontWeight.bold,
@@ -286,58 +358,60 @@ class _DashboardPageState extends State<DashboardPage> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => TripSummary()),
+                          MaterialPageRoute(
+                              builder: (context) => TripSummary()),
                         );
                       },
                     ),
                   ],
                 ),
                 const SizedBox(height: 30),
-                if (warnings.isNotEmpty) Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Colors.red.withOpacity(0.3),
-                      width: 1,
+                if (warnings.isNotEmpty)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.red.withOpacity(0.3),
+                        width: 1,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Warnings',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        ...warnings.map((warning) => Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.warning_amber_rounded,
+                                      color: Colors.red, size: 20),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      warning,
+                                      style: TextStyle(
+                                        color: Colors.red.shade300,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )),
+                      ],
                     ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Warnings',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      ...warnings.map((warning) => Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.warning_amber_rounded,
-                                color: Colors.red, size: 20),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                warning,
-                                style: TextStyle(
-                                  color: Colors.red.shade300,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )),
-                    ],
-                  ),
-                ),
                 const SizedBox(height: 30),
                 ElevatedButton(
                   onPressed: _toggleTrip,
@@ -355,9 +429,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   child: Text(
                     isTripActive ? 'End Trip' : 'Start Trip',
                     style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold
-                    ),
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(height: 30),
@@ -393,8 +465,10 @@ class _DashboardPageState extends State<DashboardPage> {
           },
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
-            BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Profile'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.settings), label: 'Settings'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.account_circle), label: 'Profile'),
           ],
         ),
       ),
