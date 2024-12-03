@@ -3,6 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:math' as math;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:trackwise/screen/map.dart';
+import 'package:trackwise/screen/trip_summary.dart';
+import 'settings.dart';
+import 'profile_screen.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -21,6 +25,7 @@ class _DashboardPageState extends State<DashboardPage> {
     'Late Night Driving Patterns'
   ];
   SharedPreferences? _prefs;
+  int _currentIndex = 0; // Track the selected index for the bottom navigation
 
   @override
   void initState() {
@@ -178,12 +183,23 @@ class _DashboardPageState extends State<DashboardPage> {
                     _buildNavButton(
                       icon: Icons.map_outlined,
                       label: 'Map',
-                      onTap: () => Navigator.pushNamed(context, '/map'),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => MapScreen()),
+                        );
+                      },
                     ),
                     _buildNavButton(
                       icon: Icons.history,
                       label: 'History',
-                      onTap: () {}, // Placeholder for future functionality
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => TripSummary()),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -246,13 +262,48 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                   child: Text(
                     isTripActive ? 'End Trip' : 'Start Trip',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(height: 30),
               ],
             ),
           ),
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: const Color.fromARGB(255, 0, 60, 110),
+          selectedItemColor: Colors.blue,
+          unselectedItemColor: Colors.white,
+          currentIndex: _currentIndex, // Adjust to set Dashboard as selected
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+            if (index == 0) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => DashboardPage()),
+              );
+            } else if (index == 1) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingsScreen()),
+              );
+            } else if (index == 2) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ProfilePage()),
+              );
+            }
+          },
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.settings), label: 'Settings'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.account_circle), label: 'Profile'),
+          ],
         ),
       ),
     );
@@ -269,16 +320,20 @@ class _DashboardPageState extends State<DashboardPage> {
         width: 120,
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
+          color: Colors.blueAccent.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
         ),
         child: Column(
           children: [
-            Icon(icon, color: Colors.white, size: 28),
+            Icon(icon, size: 30, color: Colors.white),
             const SizedBox(height: 8),
             Text(
               label,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
             ),
           ],
         ),
